@@ -1,0 +1,10 @@
+---
+rpiserversmain:
+  hosts:
+    pi5-1.home:
+rpiserversnode:
+  hosts:
+    pi3-1.home:
+rpiiottemp:
+  hosts:
+    pi0w-1.home:

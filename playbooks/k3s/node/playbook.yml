@@ -1,0 +1,45 @@
+---
+- name: Setup k3s
+  hosts: rpiserversnode
+  remote_user: pi
+
+  tasks:
+  - name: Update OS
+    become: true
+    apt:
+      update_cache: true
+      upgrade: yes
+      state: latest
+  - name: Install a list of packages
+    become: true
+    apt:
+      pkg:
+      - curl
+      - htop
+  - name: Ensure hostname
+    become: true
+    hostname:
+      name: '{{ inventory_hostname }}'
+  - name: Enable cgroups
+    become: true
+    lineinfile:
+      path: '/boot/cmdline.txt'
+      backrefs: yes
+      regexp: '(^.*$)'
+      line: '\1 cgroup_memory=1 cgroup_enable=memory'
+  - name: Reboot machine
+    become: true
+    reboot:
+  - name: Create downloads directory
+    file:
+      path: '{{ ansible_env.HOME }}/Downloads'
+      state: directory
+  - name: Copy k3s node environment variables file
+    copy:
+      src: '{{ inventory_dir }}/k3s_result/env/.node_env'
+      dest: '{{ ansible_env.HOME }}/Downloads/.node_env'
+  - name: Install and run k3s agent
+    shell: '. {{ ansible_env.HOME }}/Downloads/.node_env && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server $K3S_URL --token $K3S_TOKEN" sh -'
+  - name: Reboot machine
+    become: true
+    reboot:
