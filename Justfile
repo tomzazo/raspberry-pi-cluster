@@ -7,9 +7,6 @@
 @k3s-node:
     ansible-playbook -k -i inventory.yml playbooks/k3s/node/playbook.yml
 
-@nomad:
-    ansible-playbook -k -i inventory.yml playbooks/nomad/playbook.yml
-
 @docker:
     ansible-playbook -k -i inventory.yml playbooks/docker/playbook.yml
 
