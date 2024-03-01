@@ -30,16 +30,16 @@
   - name: Reboot machine
     become: true
     reboot:
-  - name: Create downloads directory
+  - name: Create k3s directory
     file:
-      path: '{{ ansible_env.HOME }}/Downloads'
+      path: '{{ ansible_env.HOME }}/k3s'
       state: directory
   - name: Copy k3s node environment variables file
     copy:
       src: '{{ inventory_dir }}/k3s_result/env/.node_env'
-      dest: '{{ ansible_env.HOME }}/Downloads/.node_env'
+      dest: '{{ ansible_env.HOME }}/k3s/.node_env'
   - name: Install and run k3s agent
-    shell: '. {{ ansible_env.HOME }}/Downloads/.node_env && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server $K3S_URL --token $K3S_TOKEN" sh -'
+    shell: '. {{ ansible_env.HOME }}/k3s/.node_env && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="agent --server $K3S_URL --token $K3S_TOKEN" sh -'
   - name: Reboot machine
     become: true
     reboot:
