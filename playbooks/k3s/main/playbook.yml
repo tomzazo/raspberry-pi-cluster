@@ -4,92 +4,93 @@
   remote_user: pi
 
   tasks:
-  - name: Update OS
-    become: true
-    apt:
-      update_cache: true
-      upgrade: yes
-      state: latest
-  - name: Install a list of packages
-    become: true
-    apt:
-      pkg:
-      - curl
-      - htop
-  - name: Ensure hostname
-    become: true
-    hostname:
-      name: '{{ inventory_hostname }}'
-  - name: Mount backup drive
-    become: true
-    ansible.posix.mount:
-      path: '/media/pi/backup'
-      src: 'LABEL="backup"'
-      fstype: ntfs
-      state: mounted
-  - name: Mount hdd drive
-    become: true
-    ansible.posix.mount:
-      path: '/media/pi/hdd'
-      src: 'LABEL="hdd"'
-      fstype: ext4
-      state: mounted
-  - name: Enable cgroups
-    become: true
-    lineinfile:
-      path: '/boot/firmware/cmdline.txt'
-      backrefs: yes
-      regexp: '(^.*$)'
-      line: '\1 cgroup_memory=1 cgroup_enable=memory'
-  - name: Reboot machine
-    become: true
-    reboot:
-  - name: Install and run k3s server
-    shell: 'curl -sfL https://get.k3s.io | sh -'
-  - name: Reboot machine
-    become: true
-    reboot:
-  - name: Create k3s directory
-    file:
-      path: '{{ ansible_env.HOME }}/k3s'
-      state: directory
-  - name: Copy k3s kubeconfig
-    become: true
-    copy:
-      src: '/etc/rancher/k3s/k3s.yaml'
-      dest: '{{ ansible_env.HOME }}/k3s/kubeconfig.yml'
-      owner: '{{ ansible_ssh_user }}'
-      group: '{{ ansible_ssh_user }}'
-      remote_src: true
-  - name: Prepare distributable k3s kubeconfig
-    lineinfile:
-      path: '{{ ansible_env.HOME }}/k3s/kubeconfig.yml'
-      backrefs: yes
-      regexp: '(^.*server:)'
-      line: '\1 https://{{ inventory_hostname }}:6443'
-  - name: Fetch k3s kubeconfig
-    fetch:
-      src: '{{ ansible_env.HOME }}/k3s/kubeconfig.yml'
-      dest: '{{ inventory_dir }}/k3s_result/kubeconfigs/{{ inventory_hostname }}.yml'
-      flat: true
-  - name: Create distributable k3s node env file
-    file:
-      path: '{{ ansible_env.HOME }}/k3s/.node_env'
-      state: touch
-  - name: Read k3s node token file
-    become: true
-    command: "cat /var/lib/rancher/k3s/server/node-token"
-    register: nodetoken
-  - name: Prepare distributable k3s node env file
-    become: true
-    blockinfile:
-      path: '{{ ansible_env.HOME }}/k3s/.node_env'
-      block: |
-        K3S_URL="https://{{ inventory_hostname }}:6443"
-        K3S_TOKEN="{{ nodetoken.stdout | trim }}"
-  - name: Fetch k3s node environment variables
-    become: true
-    fetch:
-      src: '{{ ansible_env.HOME }}/k3s/.node_env'
-      dest: '{{ inventory_dir }}/k3s_result/env/.node_env'
-      flat: true
+    - name: Update OS
+      become: true
+      apt:
+        update_cache: true
+        upgrade: yes
+        state: latest
+    - name: Install a list of packages
+      become: true
+      apt:
+        pkg:
+          - curl
+          - htop
+          - openresolv
+    - name: Ensure hostname
+      become: true
+      hostname:
+        name: "{{ inventory_hostname }}"
+    - name: Mount backup drive
+      become: true
+      ansible.posix.mount:
+        path: "/media/pi/backup"
+        src: 'LABEL="backup"'
+        fstype: ntfs
+        state: mounted
+    - name: Mount hdd drive
+      become: true
+      ansible.posix.mount:
+        path: "/media/pi/hdd"
+        src: 'LABEL="hdd"'
+        fstype: ext4
+        state: mounted
+    - name: Enable cgroups
+      become: true
+      lineinfile:
+        path: "/boot/firmware/cmdline.txt"
+        backrefs: yes
+        regexp: "(^.*$)"
+        line: '\1 cgroup_memory=1 cgroup_enable=memory'
+    - name: Reboot machine
+      become: true
+      reboot:
+    - name: Install and run k3s server
+      shell: "curl -sfL https://get.k3s.io | sh -"
+    - name: Reboot machine
+      become: true
+      reboot:
+    - name: Create k3s directory
+      file:
+        path: "{{ ansible_env.HOME }}/k3s"
+        state: directory
+    - name: Copy k3s kubeconfig
+      become: true
+      copy:
+        src: "/etc/rancher/k3s/k3s.yaml"
+        dest: "{{ ansible_env.HOME }}/k3s/kubeconfig.yml"
+        owner: "{{ ansible_ssh_user }}"
+        group: "{{ ansible_ssh_user }}"
+        remote_src: true
+    - name: Prepare distributable k3s kubeconfig
+      lineinfile:
+        path: "{{ ansible_env.HOME }}/k3s/kubeconfig.yml"
+        backrefs: yes
+        regexp: "(^.*server:)"
+        line: '\1 https://{{ inventory_hostname }}:6443'
+    - name: Fetch k3s kubeconfig
+      fetch:
+        src: "{{ ansible_env.HOME }}/k3s/kubeconfig.yml"
+        dest: "{{ inventory_dir }}/k3s_result/kubeconfigs/{{ inventory_hostname }}.yml"
+        flat: true
+    - name: Create distributable k3s node env file
+      file:
+        path: "{{ ansible_env.HOME }}/k3s/.node_env"
+        state: touch
+    - name: Read k3s node token file
+      become: true
+      command: "cat /var/lib/rancher/k3s/server/node-token"
+      register: nodetoken
+    - name: Prepare distributable k3s node env file
+      become: true
+      blockinfile:
+        path: "{{ ansible_env.HOME }}/k3s/.node_env"
+        block: |
+          K3S_URL="https://{{ inventory_hostname }}:6443"
+          K3S_TOKEN="{{ nodetoken.stdout | trim }}"
+    - name: Fetch k3s node environment variables
+      become: true
+      fetch:
+        src: "{{ ansible_env.HOME }}/k3s/.node_env"
+        dest: "{{ inventory_dir }}/k3s_result/env/.node_env"
+        flat: true

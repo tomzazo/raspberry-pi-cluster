@@ -4,74 +4,74 @@
   remote_user: pi
 
   tasks:
-  # Ensure basic configuration
-  - name: Update OS
-    become: true
-    apt:
-      update_cache: true
-      upgrade: yes
-      state: latest
-  - name: Install a list of packages
-    become: true
-    apt:
-      pkg:
-      - htop
-  - name: Ensure hostname
-    become: true
-    hostname:
-      name: '{{ inventory_hostname }}'
-  - name: Mount backup drive
-    become: true
-    ansible.posix.mount:
-      path: '/media/pi/backup'
-      src: 'LABEL="backup"'
-      fstype: ntfs
-      state: mounted
-  - name: Mount hdd drive
-    become: true
-    ansible.posix.mount:
-      path: '/media/pi/hdd'
-      src: 'LABEL="hdd"'
-      fstype: ext4
-      state: mounted
-  - name: Enable cgroups
-    become: true
-    lineinfile:
-      path: '/boot/cmdline.txt'
-      backrefs: yes
-      regexp: '(^.*$)'
-      line: '\1 cgroup_memory=1 cgroup_enable=memory'
-  - name: Reboot machine
-    become: true
-    ansible.builtin.reboot:
-  # Setup Docker
-  - name: Create Downloads directory
-    file:
-      path: /home/pi/Downloads
-      state: directory
-  - name: Download docker script
-    uri:
-      url: https://get.docker.com
-      dest: /home/pi/Downloads/docker.sh
-  - name: Install docker
-    shell:
-      cmd: 'sh /home/pi/Downloads/docker.sh'
-  - name: Create docker group
-    become: true
-    ansible.builtin.group:
-      name: docker
-      state: present
-  - name: Add pi user to the docker group
-    become: true
-    ansible.builtin.user:
-      name: pi
-      groups: docker
-      append: true
-  - name: Reboot machine
-    become: true
-    ansible.builtin.reboot:
-  # Prepare docker-compose
-  - name: Create docker directory
-    file:
-      path: /home/pi/docker
-      state: directory
+    # Ensure basic configuration
+    - name: Update OS
+      become: true
+      apt:
+        update_cache: true
+        upgrade: yes
+        state: latest
+    - name: Install a list of packages
+      become: true
+      apt:
+        pkg:
+          - htop
+    - name: Ensure hostname
+      become: true
+      hostname:
+        name: "{{ inventory_hostname }}"
+    - name: Mount backup drive
+      become: true
+      ansible.posix.mount:
+        path: "/media/pi/backup"
+        src: 'LABEL="backup"'
+        fstype: ntfs
+        state: mounted
+    - name: Mount hdd drive
+      become: true
+      ansible.posix.mount:
+        path: "/media/pi/hdd"
+        src: 'LABEL="hdd"'
+        fstype: ext4
+        state: mounted
+    - name: Enable cgroups
+      become: true
+      lineinfile:
+        path: "/boot/cmdline.txt"
+        backrefs: yes
+        regexp: "(^.*$)"
+        line: '\1 cgroup_memory=1 cgroup_enable=memory'
+    - name: Reboot machine
+      become: true
+      ansible.builtin.reboot:
+    # Setup Docker
+    - name: Create Downloads directory
+      file:
+        path: /home/pi/Downloads
+        state: directory
+    - name: Download docker script
+      uri:
+        url: https://get.docker.com
+        dest: /home/pi/Downloads/docker.sh
+    - name: Install docker
+      shell:
+        cmd: "sh /home/pi/Downloads/docker.sh"
+    - name: Create docker group
+      become: true
+      ansible.builtin.group:
+        name: docker
+        state: present
+    - name: Add pi user to the docker group
+      become: true
+      ansible.builtin.user:
+        name: pi
+        groups: docker
+        append: true
+    - name: Reboot machine
+      become: true
+      ansible.builtin.reboot:
+    # Prepare docker-compose
+    - name: Create docker directory
+      file:
+        path: /home/pi/docker
+        state: directory

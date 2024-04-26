@@ -4,13 +4,13 @@
   remote_user: pi
 
   tasks:
-  - name: Update apt
-    become: true
-    apt:
-      update_cache: true
-      upgrade: yes
-      state: latest
-  - name: Ensure hostname
-    become: true
-    hostname:
-      name: '{{ inventory_hostname }}'
+    - name: Update apt
+      become: true
+      apt:
+        update_cache: true
+        upgrade: yes
+        state: latest
+    - name: Ensure hostname
+      become: true
+      hostname:
+        name: "{{ inventory_hostname }}"
