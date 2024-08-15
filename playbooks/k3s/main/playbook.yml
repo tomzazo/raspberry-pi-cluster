@@ -26,13 +26,20 @@
       ansible.posix.mount:
         path: "/media/pi/backup"
         src: 'LABEL="backup"'
-        fstype: ntfs
+        fstype: ext4
         state: mounted
     - name: Mount hdd drive
       become: true
       ansible.posix.mount:
         path: "/media/pi/hdd"
         src: 'LABEL="hdd"'
+        fstype: ext4
+        state: mounted
+    - name: Mount seagate drive
+      become: true
+      ansible.posix.mount:
+        path: "/media/pi/seagate"
+        src: 'LABEL="seagate"'
         fstype: ext4
         state: mounted
     - name: Enable cgroups
