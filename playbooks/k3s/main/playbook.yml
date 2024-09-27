@@ -54,6 +54,13 @@
       reboot:
     - name: Install and run k3s server
       shell: "curl -sfL https://get.k3s.io | sh -"
+    - name: Apply registries config
+      become: true
+      copy:
+        src: "{{ inventory_dir }}/playbooks/k3s/config/registries.yaml"
+        dest: "/etc/rancher/k3s/registries.yaml"
+        owner: "root"
+        group: "root"
     - name: Reboot machine
       become: true
       reboot:

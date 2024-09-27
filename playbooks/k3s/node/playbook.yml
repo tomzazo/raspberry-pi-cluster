@@ -28,6 +28,18 @@
         backrefs: yes
         regexp: "(^.*$)"
         line: '\1 cgroup_memory=1 cgroup_enable=memory'
+    - name: Ensure rancher/k3s directory on node
+      become: true
+      file:
+        path: "/etc/rancher/k3s"
+        state: directory
+    - name: Apply registries config
+      become: true
+      copy:
+        src: "{{ inventory_dir }}/playbooks/k3s/config/registries.yaml"
+        dest: "/etc/rancher/k3s/registries.yaml"
+        owner: "root"
+        group: "root"
     - name: Reboot machine
       become: true
       reboot:

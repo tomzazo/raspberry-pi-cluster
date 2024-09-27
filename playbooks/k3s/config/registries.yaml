@@ -1,0 +1,8 @@
+mirrors:
+  "registry.pi.home:31000":
+    endpoint:
+      - http://registry.pi.home:31000
+configs:
+  "registry.pi.home:31000":
+    tls:
+      insecure_skip_verify: true
